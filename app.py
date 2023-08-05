@@ -4,6 +4,7 @@ import requests
 from PIL import Image
 from io import BytesIO
 from fastapi import FastAPI
+import cv2
 
 app = FastAPI()
 
@@ -16,7 +17,7 @@ def preprocess_image(image):
     input_shape = interpreter.get_input_details()[0]['shape']
     image = image.convert("RGB")
     image = image.resize((input_shape[1], input_shape[2]))
-    image_array = tf.keras.preprocessing.image.img_to_array(image)
+    image_array = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)  # Convert PIL image to OpenCV format
     input_data = image_array.astype(np.uint8)
     input_data = input_data[np.newaxis, ...]
     return input_data
@@ -56,4 +57,4 @@ async def predict_image_class(image_url: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
